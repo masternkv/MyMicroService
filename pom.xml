@@ -6,5 +6,6 @@
   <packaging>pom</packaging>
   <modules>
   	<module>EurekaServer</module>
+  	<module>SpringBootAppConsumer</module>
   </modules>
 </project>

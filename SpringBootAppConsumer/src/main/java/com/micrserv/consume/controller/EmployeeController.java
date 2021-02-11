@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+
+
+
+
 
 
 @RestController
@@ -37,6 +43,7 @@ public class EmployeeController {
 	LoadBalancerClient loadBalancer;
 	
 	@RequestMapping(value="/consume/ping",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+	@HystrixCommand(fallbackMethod="getEmployeeConsumeFallBack")
 	public String getEmployeeConsume()
 	{
 		System.out.println("Employee Consumer......using port:::"+port);
@@ -77,5 +84,10 @@ public class EmployeeController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		return new HttpEntity<>(headers);
+	}
+	
+	public String getEmployeeConsumeFallBack()
+	{
+		return "data not found for employee";
 	}
 }

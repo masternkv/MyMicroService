@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
+import brave.sampler.Sampler;
+
 
 
 
@@ -32,7 +35,8 @@ public class EmployeeController {
 	
 	@Value("${server.port}")
 	private int port;
-	
+	@Value("${check.config}")
+	private String config;
 	@Autowired
 	private DiscoveryClient discoveryClient;
 
@@ -42,11 +46,17 @@ public class EmployeeController {
 	@Autowired
 	LoadBalancerClient loadBalancer;
 	
+
+	@Bean
+	public Sampler defaultSampler() {
+		return Sampler.ALWAYS_SAMPLE;
+	}
+	
 	@RequestMapping(value="/consume/ping",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
 	@HystrixCommand(fallbackMethod="getEmployeeConsumeFallBack")
 	public String getEmployeeConsume()
 	{
-		System.out.println("Employee Consumer......using port:::"+port);
+		System.out.println("Employee Consumer......using port:::"+port+"::Config name"+config);
 		
 		//when load balancer not used..................
 		
@@ -89,5 +99,16 @@ public class EmployeeController {
 	public String getEmployeeConsumeFallBack()
 	{
 		return "data not found for employee";
+	}
+	
+	@RequestMapping(value="/getconfig",method=RequestMethod.GET,produces=MediaType.APPLICATION_JSON_VALUE)
+	public String getConfigVaribale()
+	{
+		//System.out.println("Employee Consumer......using port:::"+port+"::Config name"+config);
+		
+		
+
+		
+		return config;
 	}
 }
